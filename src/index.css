@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+
+/* Force the page background by theme — no more mystery gray */
+html[data-theme='light'] body { background-color: #ffffff; }
+html[data-theme='dark']  body { background-color: #000000; }
+
+/* === Local font faces ===
+   Adjust file names if yours differ. Keep these AFTER the imports. */
+   @font-face {
+    font-family: "MyFont";
+    src: url("./assets/fonts/font.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  /* === Apply globally === */
+  html, body {
+    font-family: "MyFont", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+                 Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+                 "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
