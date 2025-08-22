@@ -9,7 +9,6 @@ export default defineConfig({
     // Enables React fast-refresh, TS/JS transforms via SWC, JSX handling, etc.
     react(),
   ],
- 
   // You usually don’t need more here for a portfolio.
   // If you host under a subpath (e.g., GitHub Pages), set `base: '/subpath/'`.
 });

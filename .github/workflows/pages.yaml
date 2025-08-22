@@ -25,9 +25,43 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      # --- Build-time prefetch of your starred repositories ---
+      # This creates public/starred.json so your site can load it statically.
+      - name: Prefetch GitHub starred repos → public/starred.json
+        env:
+          GH_USER: MasterYoav
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # provided automatically by Actions
+        run: |
+          set -euo pipefail
+          mkdir -p public
+
+          # Fetch up to 300 latest stars (3 pages × 100). Increase pages if you need more.
+          curl_common=(
+            -sS
+            -H "Accept: application/vnd.github+json"
+            -H "X-GitHub-Api-Version: 2022-11-28"
+            -H "Authorization: Bearer ${GH_TOKEN}"
+          )
+
+          for page in 1 2 3; do
+            curl "${curl_common[@]}" \
+              "https://api.github.com/users/${GH_USER}/starred?per_page=100&sort=created&direction=desc&page=${page}" \
+              > "stars_page_${page}.json"
+          done
+
+          # Merge the arrays safely; ignore empty pages
+          jq -s 'map(select(type=="array")) | add' stars_page_*.json > public/starred.json
+
+          # Optional: keep only unique repos by id (defensive)
+          jq 'unique_by(.id)' public/starred.json > public/starred.json.tmp && mv public/starred.json.tmp public/starred.json
+
+          # (Optional) Sanity check
+          echo "Prefetched $(jq length public/starred.json) repos into public/starred.json"
 
       - name: Build
         run: npm run build
